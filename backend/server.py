@@ -1,18 +1,26 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException, status, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
-from pydantic import BaseModel, Field, ConfigDict
-from typing import List
+from pydantic import BaseModel, Field, ConfigDict, EmailStr
+from typing import List, Optional
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
+import jwt
+import bcrypt
 
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
+
+# JWT configuration
+JWT_SECRET = os.environ.get('JWT_SECRET', 'bhoomi-secret-key-change-in-production')
+JWT_ALGORITHM = 'HS256'
+JWT_EXPIRATION_HOURS = 24
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
@@ -25,46 +33,224 @@ app = FastAPI()
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+security = HTTPBearer()
 
-# Define Models
-class StatusCheck(BaseModel):
-    model_config = ConfigDict(extra="ignore")  # Ignore MongoDB's _id field
+
+# Admin Model
+class Admin(BaseModel):
+    model_config = ConfigDict(extra="ignore")
     
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    email: EmailStr
+    password_hash: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
-class StatusCheckCreate(BaseModel):
-    client_name: str
+class AdminLogin(BaseModel):
+    email: EmailStr
+    password: str
 
-# Add your routes to the router instead of directly to app
+class AdminCreate(BaseModel):
+    email: EmailStr
+    password: str
+
+
+# Blog Post Model
+class BlogPost(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    title_en: str
+    title_hi: Optional[str] = None
+    content_en: str
+    content_hi: Optional[str] = None
+    excerpt_en: str
+    excerpt_hi: Optional[str] = None
+    image_url: str
+    author: str
+    category: str
+    tags: List[str] = []
+    published: bool = False
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class BlogPostCreate(BaseModel):
+    title_en: str
+    title_hi: Optional[str] = None
+    content_en: str
+    content_hi: Optional[str] = None
+    excerpt_en: str
+    excerpt_hi: Optional[str] = None
+    image_url: str
+    author: str
+    category: str
+    tags: List[str] = []
+    published: bool = False
+
+class BlogPostUpdate(BaseModel):
+    title_en: Optional[str] = None
+    title_hi: Optional[str] = None
+    content_en: Optional[str] = None
+    content_hi: Optional[str] = None
+    excerpt_en: Optional[str] = None
+    excerpt_hi: Optional[str] = None
+    image_url: Optional[str] = None
+    author: Optional[str] = None
+    category: Optional[str] = None
+    tags: Optional[List[str]] = None
+    published: Optional[bool] = None
+
+
+# Auth Helpers
+def hash_password(password: str) -> str:
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+
+def create_access_token(data: dict) -> str:
+    to_encode = data.copy()
+    expire = datetime.now(timezone.utc) + timedelta(hours=JWT_EXPIRATION_HOURS)
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    try:
+        token = credentials.credentials
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        email = payload.get("email")
+        if email is None:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+        return email
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+
+
+# Admin Routes
+@api_router.post("/admin/create")
+async def create_admin(admin: AdminCreate):
+    """Create an admin account (for initial setup)"""
+    existing = await db.admins.find_one({"email": admin.email}, {"_id": 0})
+    if existing:
+        raise HTTPException(status_code=400, detail="Admin already exists")
+    
+    admin_obj = Admin(
+        email=admin.email,
+        password_hash=hash_password(admin.password)
+    )
+    
+    doc = admin_obj.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    
+    await db.admins.insert_one(doc)
+    return {"message": "Admin created successfully", "email": admin.email}
+
+@api_router.post("/admin/login")
+async def admin_login(credentials: AdminLogin):
+    """Admin login"""
+    admin = await db.admins.find_one({"email": credentials.email}, {"_id": 0})
+    if not admin or not verify_password(credentials.password, admin['password_hash']):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    token = create_access_token({"email": admin['email']})
+    return {"access_token": token, "token_type": "bearer", "email": admin['email']}
+
+@api_router.get("/admin/verify")
+async def verify_admin(email: str = Depends(verify_token)):
+    """Verify admin token"""
+    return {"email": email, "valid": True}
+
+
+# Blog Routes (Public)
+@api_router.get("/blog/posts", response_model=List[BlogPost])
+async def get_published_posts():
+    """Get all published blog posts"""
+    posts = await db.blog_posts.find({"published": True}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    
+    for post in posts:
+        if isinstance(post['created_at'], str):
+            post['created_at'] = datetime.fromisoformat(post['created_at'])
+        if isinstance(post['updated_at'], str):
+            post['updated_at'] = datetime.fromisoformat(post['updated_at'])
+    
+    return posts
+
+@api_router.get("/blog/posts/{post_id}", response_model=BlogPost)
+async def get_post(post_id: str):
+    """Get a single blog post by ID"""
+    post = await db.blog_posts.find_one({"id": post_id, "published": True}, {"_id": 0})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    if isinstance(post['created_at'], str):
+        post['created_at'] = datetime.fromisoformat(post['created_at'])
+    if isinstance(post['updated_at'], str):
+        post['updated_at'] = datetime.fromisoformat(post['updated_at'])
+    
+    return post
+
+
+# Blog Routes (Admin - Protected)
+@api_router.get("/admin/blog/posts", response_model=List[BlogPost])
+async def get_all_posts_admin(email: str = Depends(verify_token)):
+    """Get all blog posts (published and unpublished) - Admin only"""
+    posts = await db.blog_posts.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    
+    for post in posts:
+        if isinstance(post['created_at'], str):
+            post['created_at'] = datetime.fromisoformat(post['created_at'])
+        if isinstance(post['updated_at'], str):
+            post['updated_at'] = datetime.fromisoformat(post['updated_at'])
+    
+    return posts
+
+@api_router.post("/admin/blog/posts", response_model=BlogPost)
+async def create_post(post: BlogPostCreate, email: str = Depends(verify_token)):
+    """Create a new blog post - Admin only"""
+    post_obj = BlogPost(**post.model_dump())
+    
+    doc = post_obj.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    doc['updated_at'] = doc['updated_at'].isoformat()
+    
+    await db.blog_posts.insert_one(doc)
+    return post_obj
+
+@api_router.put("/admin/blog/posts/{post_id}", response_model=BlogPost)
+async def update_post(post_id: str, post_update: BlogPostUpdate, email: str = Depends(verify_token)):
+    """Update a blog post - Admin only"""
+    existing_post = await db.blog_posts.find_one({"id": post_id}, {"_id": 0})
+    if not existing_post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    update_data = {k: v for k, v in post_update.model_dump().items() if v is not None}
+    update_data['updated_at'] = datetime.now(timezone.utc).isoformat()
+    
+    await db.blog_posts.update_one({"id": post_id}, {"$set": update_data})
+    
+    updated_post = await db.blog_posts.find_one({"id": post_id}, {"_id": 0})
+    if isinstance(updated_post['created_at'], str):
+        updated_post['created_at'] = datetime.fromisoformat(updated_post['created_at'])
+    if isinstance(updated_post['updated_at'], str):
+        updated_post['updated_at'] = datetime.fromisoformat(updated_post['updated_at'])
+    
+    return updated_post
+
+@api_router.delete("/admin/blog/posts/{post_id}")
+async def delete_post(post_id: str, email: str = Depends(verify_token)):
+    """Delete a blog post - Admin only"""
+    result = await db.blog_posts.delete_one({"id": post_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return {"message": "Post deleted successfully"}
+
+
+# Health check
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Bhoomi Groups API is running"}
 
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.model_dump()
-    status_obj = StatusCheck(**status_dict)
-    
-    # Convert to dict and serialize datetime to ISO string for MongoDB
-    doc = status_obj.model_dump()
-    doc['timestamp'] = doc['timestamp'].isoformat()
-    
-    _ = await db.status_checks.insert_one(doc)
-    return status_obj
-
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    # Exclude MongoDB's _id field from the query results
-    status_checks = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
-    
-    # Convert ISO string timestamps back to datetime objects
-    for check in status_checks:
-        if isinstance(check['timestamp'], str):
-            check['timestamp'] = datetime.fromisoformat(check['timestamp'])
-    
-    return status_checks
 
 # Include the router in the main app
 app.include_router(api_router)
