@@ -1,0 +1,137 @@
+{
+  "theme": "light",
+  "archetype": "1 (Organic & Earthy) blended with 4 (Swiss & High-Contrast)",
+  "emotional_tone": "Trust, Durability, Indian Pride, Modern Industrial",
+  "typography": {
+    "heading_font": "Cabinet Grotesk",
+    "body_font": "IBM Plex Sans",
+    "pairing_strategy": "The 'Swiss Brutalist' Corporate - wide, confident sans-serif headings with clear, sterile sans-serif body text.",
+    "hierarchy": {
+      "h1": "text-4xl sm:text-5xl lg:text-6xl tracking-tight font-black",
+      "h2": "text-3xl sm:text-4xl lg:text-5xl tracking-tight font-bold",
+      "h3": "text-2xl sm:text-3xl tracking-tight font-semibold",
+      "h4": "text-xl sm:text-2xl font-medium",
+      "body": "text-base leading-relaxed text-[#6C4025]",
+      "overline": "uppercase text-xs sm:text-sm tracking-[0.2em] font-semibold text-[#E67E22]"
+    }
+  },
+  "colors": {
+    "background": {
+      "primary": "#F5F0E5",
+      "secondary": "#FFFFFF",
+      "dark_section": "#3A339B",
+      "accent_section": "#8B5E3D"
+    },
+    "text": {
+      "primary": "#3A339B",
+      "secondary": "#6C4025",
+      "accent": "#E67E22",
+      "on_dark": "#F5F0E5",
+      "on_accent": "#FFFFFF"
+    },
+    "border": {
+      "light": "rgba(108, 64, 37, 0.1)",
+      "medium": "rgba(58, 51, 155, 0.2)",
+      "dark": "rgba(58, 51, 155, 0.5)"
+    },
+    "interactive": {
+      "button_primary_bg": "#E67E22",
+      "button_primary_text": "#FFFFFF",
+      "button_primary_hover": "#D35400",
+      "button_secondary_bg": "transparent",
+      "button_secondary_border": "#3A339B",
+      "button_secondary_text": "#3A339B",
+      "button_secondary_hover": "#3A339B",
+      "button_secondary_hover_text": "#FFFFFF"
+    }
+  },
+  "spacing_and_layout": {
+    "container_padding": "px-6 md:px-12 lg:px-24",
+    "section_spacing": "py-24 md:py-32",
+    "card_padding": "p-8 md:p-12",
+    "grid_gap": "gap-8 md:gap-12",
+    "border_radius": "rounded-none",
+    "layout_patterns": [
+      "MODE A: The 'Tetris' Grid for the Products/Services bento box.",
+      "The 'Technical' Grid Borders for the 'About Us/Company History' section to look like industrial blueprints.",
+      "Generous padding for hero elements to make the Deep Blue and Orange pop against the Beige background."
+    ]
+  },
+  "surface_strategies": {
+    "header": "Solid Background (#F5F0E5) with a hard 1px bottom border (rgba(58, 51, 155, 0.2)). No transparent overlays.",
+    "cards": "Flat Background (#FFFFFF), 1px solid border (#3A339B or #6C4025 opacity 20%), sharp corners, no soft shadows.",
+    "footer": "Dark Theme Footer (#3A339B) with massive vertical spacing (py-24). Secondary links in #F5F0E5 with 70% opacity."
+  },
+  "components_usage": {
+    "marketing_sections": "Pure HTML/Tailwind. Avoid standard Shadcn Cards for hero and bento grids.",
+    "forms": "Use Shadcn Input, Textarea, Select, Checkbox for Zoho form integrations. Strip Vercel-look borders; use sharp edges and #3A339B focus rings.",
+    "navigation": "Sticky navigation, desktop links must be visible (no hamburger). Primary CTA button highlighted in #E67E22.",
+    "icons": "Use @phosphor-icons/react (Duotone weight for high-end industrial feel)."
+  },
+  "motion_and_interactions": {
+    "hover_states": "Crisp background fill changes. Buttons shift from transparent to solid with text color inversion.",
+    "page_load": "Staggered fade-up for bento grid items.",
+    "marquee": "The 'Editorial Ribbon' or 'Kinetic Texture' for moving text displaying 'Building India from the Ground Up • Grounded in Strength • Driven by Flow'."
+  },
+  "media": {
+    "image_urls": {
+      "logos": [
+        {
+          "url": "https://customer-assets.emergentagent.com/job_67b34fec-dd81-4153-99a8-4af0952007e1/artifacts/ln1g11ts_IMG-20260326-WA0065.jpg",
+          "description": "Bhoomi Groups Logo Image 1",
+          "category": "header_logo"
+        },
+        {
+          "url": "https://customer-assets.emergentagent.com/job_67b34fec-dd81-4153-99a8-4af0952007e1/artifacts/dbpa6v5n_IMG-20260326-WA0064.jpg",
+          "description": "Bhoomi Groups Logo Image 2",
+          "category": "footer_logo"
+        }
+      ],
+      "hero_and_backgrounds": [
+        {
+          "url": "https://images.unsplash.com/photo-1768984418592-5b54e4fe7af5?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTJ8MHwxfHNlYXJjaHwzfHxhZ3JpY3VsdHVyZSUyMGlycmlnYXRpb24lMjBzeXN0ZW1zfGVufDB8fHx8MTc3NDY4Mjc0M3ww&ixlib=rb-4.1.0&q=85",
+          "description": "Farm sprinklers watering crops at dusk with mountains background",
+          "category": "hero_background_agriculture"
+        },
+        {
+          "url": "https://images.pexels.com/photos/15508178/pexels-photo-15508178.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+          "description": "Rows of steel tubes stacked in an industrial warehouse",
+          "category": "hero_background_industrial"
+        }
+      ],
+      "products": [
+        {
+          "url": "https://images.pexels.com/photos/15508178/pexels-photo-15508178.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+          "description": "Bhoomi Pipes Category Image",
+          "category": "product_pipes"
+        },
+        {
+          "url": "https://images.pexels.com/photos/32489252/pexels-photo-32489252.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+          "description": "Detailed view of industrial pump",
+          "category": "product_pumps"
+        },
+        {
+          "url": "https://images.pexels.com/photos/30367510/pexels-photo-30367510.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+          "description": "Large cable reels in industrial facility",
+          "category": "product_cables"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1774019883172-a89730a86500?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzOTB8MHwxfHNlYXJjaHwyfHxpbmR1c3RyaWFsJTIwd2F0ZXIlMjBwdW1wc3xlbnwwfHx8fDE3NzQ2ODI3NDV8MA&ixlib=rb-4.1.0&q=85",
+          "description": "Industrial valve fitting",
+          "category": "product_fittings"
+        }
+      ]
+    },
+    "image_treatment": "Images should have no rounded corners (rounded-none). Avoid completely darkening overlays; if needed, use a gradient overlay (bg-gradient-to-r from-[#3A339B]/80 via-[#3A339B]/40 to-transparent) to ensure the deep blue brand color integrates beautifully while keeping the image visible."
+  },
+  "instructions_to_main_agent": [
+    "Install and use Cabinet Grotesk for Headings and IBM Plex Sans for body text.",
+    "Install @phosphor-icons/react for icons.",
+    "Build a robust layout using pure HTML/Tailwind for marketing sections. Embrace asymmetry using CSS Grid.",
+    "For the Zoho Help Desk form (https://forms.zohopublic.in/bhoomiinfobhoomi1/form/BhoomiGroupsHelpDeskSupportRequestForm/formperma/zsL5n0ihh-CXPqEz5UKnEJTO7366_AEegnh9-sJtD2g) and Dealer Enquiry form (https://forms.zohopublic.in/bhoomiinfobhoomi1/form/DealerQuestionnaireFormforthewebsite/formperma/Dq2r69zArvvqsIDBeU_q7PrJ9QjksXiMf_F9UThjKRc), you can either embed them as iframes or build custom Shadcn forms that POST to their action URLs if possible.",
+    "Use react-fast-marquee to display the company taglines in an infinite ribbon style.",
+    "Build a full CMS for the Blog section.",
+    "Implement multi-language support (language switcher) using a standard library like react-i18next.",
+    "Include 'data-testid' on all interactive elements as per the critical rules."
+  ]
+}
