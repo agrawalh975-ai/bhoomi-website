@@ -183,9 +183,16 @@ export const AdminDashboard = () => {
               <h1 className="text-4xl sm:text-5xl font-black text-[#3A339B] mb-2" style={{ fontFamily: 'Cabinet Grotesk, sans-serif' }}>
                 Admin Dashboard
               </h1>
-              <p className="text-[#6C4025]">Manage your blog posts</p>
+              <p className="text-[#6C4025]">Manage your blog posts and FAQs</p>
             </div>
             <div className="flex items-center space-x-4">
+              <Link 
+                to="/admin/faqs"
+                className="inline-flex items-center px-6 py-3 bg-[#3A339B] hover:bg-[#2A2370] text-white font-medium"
+                data-testid="manage-faqs-link"
+              >
+                Manage FAQs
+              </Link>
               <Button 
                 onClick={() => setShowCreateModal(true)}
                 className="bg-[#E67E22] hover:bg-[#D35400] text-white"

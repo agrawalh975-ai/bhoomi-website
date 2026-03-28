@@ -67,18 +67,23 @@ const resources = {
       },
       faq: {
         title: 'Frequently Asked Questions',
-        subtitle: 'Find answers to common questions'
+        subtitle: 'Find answers to common questions',
+        allFaqs: 'All FAQs',
+        helpCenter: 'Help Center'
       },
       forms: {
         helpDesk: {
           title: 'Help Desk',
-          description: 'Need support? Submit your request and our team will assist you.'
+          description: 'Need support? Submit your request and our team will assist you.',
+          subtitle: 'Get immediate assistance for technical support, product queries, or service requests.'
         },
         enquiry: {
           title: 'Dealer Enquiry',
-          description: 'Interested in becoming a dealer? Fill out our questionnaire.'
+          description: 'Interested in becoming a dealer? Fill out our questionnaire.',
+          subtitle: 'Join our network of successful dealers and grow your business with Bhoomi Groups.'
         },
-        submit: 'Submit Form'
+        submit: 'Submit Form',
+        openForm: 'Open Form'
       },
       footer: {
         tagline: 'Building India from the Ground Up',
@@ -160,18 +165,23 @@ const resources = {
       },
       faq: {
         title: 'अक्सर पूछे जाने वाले प्रश्न',
-        subtitle: 'सामान्य प्रश्नों के उत्तर खोजें'
+        subtitle: 'सामान्य प्रश्नों के उत्तर खोजें',
+        allFaqs: 'सभी प्रश्न',
+        helpCenter: 'सहायता केंद्र'
       },
       forms: {
         helpDesk: {
           title: 'सहायता डेस्क',
-          description: 'सहायता चाहिए? अपना अनुरोध सबमिट करें और हमारी टीम आपकी सहायता करेगी।'
+          description: 'सहायता चाहिए? अपना अनुरोध सबमिट करें और हमारी टीम आपकी सहायता करेगी।',
+          subtitle: 'तकनीकी सहायता, उत्पाद प्रश्नों या सेवा अनुरोधों के लिए तत्काल सहायता प्राप्त करें।'
         },
         enquiry: {
           title: 'डीलर पूछताछ',
-          description: 'डीलर बनने में रुचि है? हमारी प्रश्नावली भरें।'
+          description: 'डीलर बनने में रुचि है? हमारी प्रश्नावली भरें।',
+          subtitle: 'हमारे सफल डीलरों के नेटवर्क में शामिल हों और भूमि समूह के साथ अपना व्यवसाय बढ़ाएं।'
         },
-        submit: 'फॉर्म जमा करें'
+        submit: 'फॉर्म जमा करें',
+        openForm: 'फॉर्म खोलें'
       },
       footer: {
         tagline: 'भारत को जमीन से बनाना',

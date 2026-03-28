@@ -73,6 +73,39 @@ class BlogPost(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
+# FAQ Model
+class FAQ(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    question_en: str
+    question_hi: Optional[str] = None
+    answer_en: str
+    answer_hi: Optional[str] = None
+    category: str
+    order: int = 0
+    published: bool = False
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class FAQCreate(BaseModel):
+    question_en: str
+    question_hi: Optional[str] = None
+    answer_en: str
+    answer_hi: Optional[str] = None
+    category: str
+    order: int = 0
+    published: bool = False
+
+class FAQUpdate(BaseModel):
+    question_en: Optional[str] = None
+    question_hi: Optional[str] = None
+    answer_en: Optional[str] = None
+    answer_hi: Optional[str] = None
+    category: Optional[str] = None
+    order: Optional[int] = None
+    published: Optional[bool] = None
+
 class BlogPostCreate(BaseModel):
     title_en: str
     title_hi: Optional[str] = None
@@ -244,6 +277,76 @@ async def delete_post(post_id: str, email: str = Depends(verify_token)):
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Post not found")
     return {"message": "Post deleted successfully"}
+
+
+# FAQ Routes (Public)
+@api_router.get("/faqs", response_model=List[FAQ])
+async def get_published_faqs():
+    """Get all published FAQs"""
+    faqs = await db.faqs.find({"published": True}, {"_id": 0}).sort("order", 1).to_list(1000)
+    
+    for faq in faqs:
+        if isinstance(faq['created_at'], str):
+            faq['created_at'] = datetime.fromisoformat(faq['created_at'])
+        if isinstance(faq['updated_at'], str):
+            faq['updated_at'] = datetime.fromisoformat(faq['updated_at'])
+    
+    return faqs
+
+
+# FAQ Routes (Admin - Protected)
+@api_router.get("/admin/faqs", response_model=List[FAQ])
+async def get_all_faqs_admin(email: str = Depends(verify_token)):
+    """Get all FAQs (published and unpublished) - Admin only"""
+    faqs = await db.faqs.find({}, {"_id": 0}).sort("order", 1).to_list(1000)
+    
+    for faq in faqs:
+        if isinstance(faq['created_at'], str):
+            faq['created_at'] = datetime.fromisoformat(faq['created_at'])
+        if isinstance(faq['updated_at'], str):
+            faq['updated_at'] = datetime.fromisoformat(faq['updated_at'])
+    
+    return faqs
+
+@api_router.post("/admin/faqs", response_model=FAQ)
+async def create_faq(faq: FAQCreate, email: str = Depends(verify_token)):
+    """Create a new FAQ - Admin only"""
+    faq_obj = FAQ(**faq.model_dump())
+    
+    doc = faq_obj.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    doc['updated_at'] = doc['updated_at'].isoformat()
+    
+    await db.faqs.insert_one(doc)
+    return faq_obj
+
+@api_router.put("/admin/faqs/{faq_id}", response_model=FAQ)
+async def update_faq(faq_id: str, faq_update: FAQUpdate, email: str = Depends(verify_token)):
+    """Update a FAQ - Admin only"""
+    existing_faq = await db.faqs.find_one({"id": faq_id}, {"_id": 0})
+    if not existing_faq:
+        raise HTTPException(status_code=404, detail="FAQ not found")
+    
+    update_data = {k: v for k, v in faq_update.model_dump().items() if v is not None}
+    update_data['updated_at'] = datetime.now(timezone.utc).isoformat()
+    
+    await db.faqs.update_one({"id": faq_id}, {"$set": update_data})
+    
+    updated_faq = await db.faqs.find_one({"id": faq_id}, {"_id": 0})
+    if isinstance(updated_faq['created_at'], str):
+        updated_faq['created_at'] = datetime.fromisoformat(updated_faq['created_at'])
+    if isinstance(updated_faq['updated_at'], str):
+        updated_faq['updated_at'] = datetime.fromisoformat(updated_faq['updated_at'])
+    
+    return updated_faq
+
+@api_router.delete("/admin/faqs/{faq_id}")
+async def delete_faq(faq_id: str, email: str = Depends(verify_token)):
+    """Delete a FAQ - Admin only"""
+    result = await db.faqs.delete_one({"id": faq_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="FAQ not found")
+    return {"message": "FAQ deleted successfully"}
 
 
 # Health check

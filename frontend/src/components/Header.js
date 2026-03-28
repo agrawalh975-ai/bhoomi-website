@@ -40,6 +40,9 @@ export const Header = () => {
             <Link to="/blog" className="text-[#3A339B] hover:text-[#E67E22] transition-colors duration-200 font-medium" data-testid="nav-blog">
               {t('nav.blog')}
             </Link>
+            <Link to="/help-center" className="text-[#3A339B] hover:text-[#E67E22] transition-colors duration-200 font-medium" data-testid="nav-help">
+              {t('nav.helpDesk')}
+            </Link>
             <a href="#contact" className="text-[#3A339B] hover:text-[#E67E22] transition-colors duration-200 font-medium" data-testid="nav-contact">
               {t('nav.contact')}
             </a>
