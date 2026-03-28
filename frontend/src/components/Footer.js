@@ -50,12 +50,12 @@ export const Footer = () => {
               <li><a href="#help-desk" className="hover:opacity-100 transition-opacity">{t('footer.helpDesk')}</a></li>
               <li><a href="#faq" className="hover:opacity-100 transition-opacity">{t('footer.faq')}</a></li>
             </ul>
-            <h3 className="text-lg font-semibold mt-6 mb-4">{t('footer.groupCompanies')}</h3>
+            <h3 className="text-lg font-semibold mt-6 mb-4">Quality Standards</h3>
             <ul className="space-y-2 text-[#F5F0E5] opacity-70 text-sm">
-              <li><a href="https://www.crigroups.com" target="_blank" rel="noopener noreferrer" className="hover:opacity-100 transition-opacity">CRI Groups</a></li>
-              <li><a href="https://www.plasto.in" target="_blank" rel="noopener noreferrer" className="hover:opacity-100 transition-opacity">Plasto</a></li>
-              <li><a href="https://texmo.com" target="_blank" rel="noopener noreferrer" className="hover:opacity-100 transition-opacity">Texmo</a></li>
-              <li><a href="https://www.lubipumps.com" target="_blank" rel="noopener noreferrer" className="hover:opacity-100 transition-opacity">Lubi</a></li>
+              <li>ISO 9001:2015 Certified</li>
+              <li>BIS Approved</li>
+              <li>ISI Marked Products</li>
+              <li>CPVC NSF Certified</li>
             </ul>
           </div>
         </div>
