@@ -1,17 +1,11 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Headset, EnvelopeSimple, Phone } from '@phosphor-icons/react';
+import { Headset, EnvelopeSimple } from '@phosphor-icons/react';
 
 export const FormsSection = () => {
   const { t } = useTranslation();
 
-  // Bhoomi Groups contact information
-  const helpDeskPhone = '+91-9876543210'; // Replace with actual help desk number
   const helpDeskEmail = 'bhoomi.info@bhoomigroups.com';
-
-  const handlePhoneClick = () => {
-    window.location.href = `tel:${helpDeskPhone}`;
-  };
 
   const handleEmailClick = () => {
     window.location.href = `mailto:${helpDeskEmail}`;
@@ -31,23 +25,8 @@ export const FormsSection = () => {
               {t('forms.helpDesk.description')}
             </p>
 
-            {/* Quick Contact Options */}
-            <div className="space-y-4 mb-6">
-              <div className="flex items-center space-x-3 p-4 bg-[#F5F0E5] border border-[rgba(58,51,155,0.1)]">
-                <Phone size={24} weight="bold" className="text-[#E67E22]" />
-                <div>
-                  <div className="text-xs text-[#6C4025] mb-1">Call Us</div>
-                  <a 
-                    href={`tel:${helpDeskPhone}`}
-                    onClick={handlePhoneClick}
-                    className="text-[#3A339B] font-semibold hover:text-[#E67E22] transition-colors"
-                    data-testid="help-desk-phone"
-                  >
-                    {helpDeskPhone}
-                  </a>
-                </div>
-              </div>
-
+            {/* Email Contact Option */}
+            <div className="mb-6">
               <div className="flex items-center space-x-3 p-4 bg-[#F5F0E5] border border-[rgba(58,51,155,0.1)]">
                 <EnvelopeSimple size={24} weight="bold" className="text-[#E67E22]" />
                 <div>

@@ -5,6 +5,12 @@ import { Headset, EnvelopeSimple } from '@phosphor-icons/react';
 export const FormsSection = () => {
   const { t } = useTranslation();
 
+  const helpDeskEmail = 'bhoomi.info@bhoomigroups.com';
+
+  const handleEmailClick = () => {
+    window.location.href = `mailto:${helpDeskEmail}`;
+  };
+
   return (
     <section id="contact" className="py-24 md:py-32 bg-[#F5F0E5]" data-testid="forms-section">
       <div className="px-6 md:px-12 lg:px-24">
@@ -18,15 +24,37 @@ export const FormsSection = () => {
             <p className="text-base text-[#6C4025] mb-6" style={{ fontFamily: 'IBM Plex Sans, sans-serif' }}>
               {t('forms.helpDesk.description')}
             </p>
-            <a 
-              href="https://forms.zohopublic.in/bhoomiinfobhoomi1/form/BhoomiGroupsHelpDeskSupportRequestForm/formperma/zsL5n0ihh-CXPqEz5UKnEJTO7366_AEegnh9-sJtD2g" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-flex items-center space-x-2 px-6 py-3 bg-[#E67E22] text-white hover:bg-[#D35400] transition-colors duration-200 font-medium"
-              data-testid="help-desk-button"
-            >
-              <span>{t('forms.submit')}</span>
-            </a>
+
+            {/* Email Contact Option */}
+            <div className="mb-6">
+              <div className="flex items-center space-x-3 p-4 bg-[#F5F0E5] border border-[rgba(58,51,155,0.1)]">
+                <EnvelopeSimple size={24} weight="bold" className="text-[#E67E22]" />
+                <div>
+                  <div className="text-xs text-[#6C4025] mb-1">Email Us</div>
+                  <a 
+                    href={`mailto:${helpDeskEmail}`}
+                    onClick={handleEmailClick}
+                    className="text-[#3A339B] font-semibold hover:text-[#E67E22] transition-colors"
+                    data-testid="help-desk-email"
+                  >
+                    {helpDeskEmail}
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-[rgba(58,51,155,0.1)] pt-6">
+              <p className="text-sm text-[#6C4025] mb-4">Or submit a detailed request:</p>
+              <a 
+                href="https://forms.zohopublic.in/bhoomiinfobhoomi1/form/BhoomiGroupsHelpDeskSupportRequestForm/formperma/zsL5n0ihh-CXPqEz5UKnEJTO7366_AEegnh9-sJtD2g" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center space-x-2 px-6 py-3 bg-[#E67E22] text-white hover:bg-[#D35400] transition-colors duration-200 font-medium"
+                data-testid="help-desk-button"
+              >
+                <span>{t('forms.submit')}</span>
+              </a>
+            </div>
           </div>
 
           {/* Dealer Enquiry Form */}
