@@ -58,9 +58,16 @@ export const Header = () => {
               <Globe size={20} weight="duotone" />
               <span className="text-sm font-medium">{currentLang === 'en' ? 'हिन्दी' : 'English'}</span>
             </button>
+            <a 
+              href="#contact" 
+              className="hidden md:block px-6 py-2 bg-[#E67E22] text-white hover:bg-[#D35400] transition-colors duration-200 font-medium"
+              data-testid="get-quote-button"
+            >
+              Get a Quote
+            </a>
             <Link 
               to="/admin" 
-              className="hidden md:block px-6 py-2 bg-[#E67E22] text-white hover:bg-[#D35400] transition-colors duration-200 font-medium"
+              className="hidden md:block px-6 py-2 border border-[#3A339B] text-[#3A339B] hover:bg-[#3A339B] hover:text-white transition-all duration-200 font-medium"
               data-testid="admin-link"
             >
               Admin
