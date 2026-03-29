@@ -38,25 +38,25 @@ export const WhatsAppButton = () => {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50" data-testid="whatsapp-button">
+    <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50" data-testid="whatsapp-button">
       {/* WhatsApp Button */}
       <button
         onClick={handleClick}
-        className="group relative w-16 h-16 bg-[#25D366] hover:bg-[#20BA5A] text-white shadow-lg hover:shadow-2xl transition-all duration-300 flex items-center justify-center"
+        className="group relative w-14 h-14 md:w-16 md:h-16 bg-[#25D366] hover:bg-[#20BA5A] text-white shadow-lg hover:shadow-2xl transition-all duration-300 flex items-center justify-center rounded-full"
         aria-label="Contact us on WhatsApp"
         title="Chat with us on WhatsApp"
         data-testid="whatsapp-click"
       >
         {/* Pulse Effect */}
-        <span className="absolute inset-0 bg-[#25D366] opacity-75 animate-ping"></span>
+        <span className="absolute inset-0 bg-[#25D366] rounded-full opacity-75 animate-ping"></span>
         
         {/* Icon */}
-        <WhatsappLogo size={32} weight="fill" className="relative z-10 group-hover:scale-110 transition-transform duration-200" />
+        <WhatsappLogo size={28} weight="fill" className="md:w-8 md:h-8 relative z-10 group-hover:scale-110 transition-transform duration-200" />
       </button>
       
-      {/* Tooltip */}
-      <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block">
-        <div className="bg-gray-900 text-white text-xs px-3 py-2 whitespace-nowrap shadow-lg">
+      {/* Tooltip - Desktop only */}
+      <div className="absolute bottom-full right-0 mb-2 hidden md:group-hover:block pointer-events-none">
+        <div className="bg-gray-900 text-white text-xs px-3 py-2 whitespace-nowrap shadow-lg rounded">
           Chat on WhatsApp
           <div className="absolute bottom-0 right-4 transform translate-y-1/2 rotate-45 w-2 h-2 bg-gray-900"></div>
         </div>
