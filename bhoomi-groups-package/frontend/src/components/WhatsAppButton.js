@@ -31,8 +31,8 @@ export const WhatsAppButton = () => {
   }, [isVisible]);
 
   const handleClick = () => {
-    // Bhoomi Groups WhatsApp number (replace with actual number)
-    const phoneNumber = '919876543210'; // Replace with actual WhatsApp business number
+    // Bhoomi Groups WhatsApp number
+    const phoneNumber = '916261084801'; // India country code + phone number
     const message = encodeURIComponent('Hello! I would like to inquire about Bhoomi Groups products.');
     window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
   };
