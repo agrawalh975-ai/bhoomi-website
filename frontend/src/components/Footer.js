@@ -1,25 +1,38 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FacebookLogo, InstagramLogo, LinkedinLogo, YoutubeLogo, EnvelopeSimple } from '@phosphor-icons/react';
+import { FacebookLogo, InstagramLogo, LinkedinLogo, YoutubeLogo, EnvelopeSimple, Phone, User } from '@phosphor-icons/react';
 import { toast } from 'sonner';
+import axios from 'axios';
 
 export const Footer = () => {
   const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
-  const [email, setEmail] = useState('');
+  const [formData, setFormData] = useState({
+    email: '',
+    phone: '',
+    name: ''
+  });
   const [loading, setLoading] = useState(false);
+
+  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+  const API = `${BACKEND_URL}/api`;
 
   const handleNewsletterSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     
-    // Simulate newsletter signup
-    setTimeout(() => {
-      toast.success('Thank you for subscribing to our newsletter!');
-      setEmail('');
+    try {
+      const response = await axios.post(`${API}/newsletter/subscribe`, formData);
+      toast.success(response.data.message || 'Thank you for subscribing!');
+      setFormData({ email: '', phone: '', name: '' });
+    } catch (error) {
+      console.error('Newsletter subscription error:', error);
+      const errorMessage = error.response?.data?.detail || 'Failed to subscribe. Please try again.';
+      toast.error(errorMessage);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -34,26 +47,57 @@ export const Footer = () => {
             <p className="text-[#F5F0E5] opacity-80 mb-6">
               Subscribe to our newsletter for product updates, industry insights, and special offers
             </p>
-            <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-              <div className="flex-1 relative">
+            <form onSubmit={handleNewsletterSubmit} className="space-y-3 max-w-md mx-auto">
+              {/* Name Field */}
+              <div className="relative">
+                <User size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6C4025]" weight="bold" />
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  placeholder="Your name (optional)"
+                  className="w-full pl-12 pr-4 py-3 bg-white text-[#3A339B] placeholder-[#6C4025] border-0 focus:outline-none focus:ring-2 focus:ring-[#E67E22]"
+                  data-testid="newsletter-name"
+                />
+              </div>
+              
+              {/* Email Field */}
+              <div className="relative">
                 <EnvelopeSimple size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6C4025]" weight="bold" />
                 <input
                   type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  placeholder="Enter your email *"
                   required
                   className="w-full pl-12 pr-4 py-3 bg-white text-[#3A339B] placeholder-[#6C4025] border-0 focus:outline-none focus:ring-2 focus:ring-[#E67E22]"
                   data-testid="newsletter-email"
                 />
               </div>
+
+              {/* Phone Field */}
+              <div className="relative">
+                <Phone size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6C4025]" weight="bold" />
+                <input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                  placeholder="Enter your phone number *"
+                  required
+                  pattern="[0-9]{10}"
+                  title="Please enter a valid 10-digit phone number"
+                  className="w-full pl-12 pr-4 py-3 bg-white text-[#3A339B] placeholder-[#6C4025] border-0 focus:outline-none focus:ring-2 focus:ring-[#E67E22]"
+                  data-testid="newsletter-phone"
+                />
+              </div>
+
               <button
                 type="submit"
                 disabled={loading}
-                className="px-8 py-3 bg-[#E67E22] text-white hover:bg-[#D35400] transition-colors duration-200 font-medium disabled:opacity-50"
+                className="w-full px-8 py-3 bg-[#E67E22] text-white hover:bg-[#D35400] transition-colors duration-200 font-medium disabled:opacity-50"
                 data-testid="newsletter-submit"
               >
-                {loading ? 'Subscribing...' : 'Subscribe'}
+                {loading ? 'Subscribing...' : 'Subscribe Now'}
               </button>
             </form>
           </div>

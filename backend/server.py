@@ -88,6 +88,22 @@ class FAQ(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
+# Newsletter Subscription Model
+class NewsletterSubscription(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    email: EmailStr
+    phone: str
+    name: Optional[str] = None
+    subscribed_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    active: bool = True
+
+class NewsletterSubscriptionCreate(BaseModel):
+    email: EmailStr
+    phone: str
+    name: Optional[str] = None
+
 class FAQCreate(BaseModel):
     question_en: str
     question_hi: Optional[str] = None
@@ -347,6 +363,89 @@ async def delete_faq(faq_id: str, email: str = Depends(verify_token)):
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="FAQ not found")
     return {"message": "FAQ deleted successfully"}
+
+
+# Newsletter Subscription Routes (Public)
+@api_router.post("/newsletter/subscribe")
+async def subscribe_newsletter(subscription: NewsletterSubscriptionCreate):
+    """Subscribe to newsletter - Public endpoint"""
+    # Check if email already subscribed
+    existing = await db.newsletter_subscriptions.find_one({"email": subscription.email}, {"_id": 0})
+    if existing and existing.get('active'):
+        raise HTTPException(status_code=400, detail="This email is already subscribed")
+    
+    # Create subscription
+    sub_obj = NewsletterSubscription(**subscription.model_dump())
+    doc = sub_obj.model_dump()
+    doc['subscribed_at'] = doc['subscribed_at'].isoformat()
+    
+    await db.newsletter_subscriptions.insert_one(doc)
+    
+    # Send notification email to bhoomi.info@bhoomigroups.com
+    try:
+        # Email notification content
+        email_subject = f"New Newsletter Subscription - {subscription.email}"
+        email_body = f"""
+New Newsletter Subscription Received
+
+Email: {subscription.email}
+Phone: {subscription.phone}
+Name: {subscription.name if subscription.name else 'Not provided'}
+Subscribed At: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}
+
+---
+This is an automated notification from Bhoomi Groups Website
+"""
+        
+        # Log the subscription (in production, send actual email)
+        logger.info(f"Newsletter Subscription: {subscription.email} - Phone: {subscription.phone}")
+        logger.info(f"Email notification would be sent to: bhoomi.info@bhoomigroups.com")
+        logger.info(f"Subject: {email_subject}")
+        logger.info(f"Body: {email_body}")
+        
+        # TODO: Integrate actual email service (SendGrid, AWS SES, etc.)
+        # Example with SendGrid:
+        # import sendgrid
+        # sg = sendgrid.SendGridAPIClient(api_key=os.environ.get('SENDGRID_API_KEY'))
+        # message = Mail(
+        #     from_email='noreply@bhoomigroups.com',
+        #     to_emails='bhoomi.info@bhoomigroups.com',
+        #     subject=email_subject,
+        #     plain_text_content=email_body
+        # )
+        # sg.send(message)
+        
+    except Exception as e:
+        logger.error(f"Error sending notification email: {str(e)}")
+    
+    return {
+        "message": "Subscription successful! You will receive updates from Bhoomi Groups.",
+        "email": subscription.email
+    }
+
+
+@api_router.get("/admin/newsletter/subscriptions", response_model=List[NewsletterSubscription])
+async def get_all_subscriptions(email: str = Depends(verify_token)):
+    """Get all newsletter subscriptions - Admin only"""
+    subscriptions = await db.newsletter_subscriptions.find({}, {"_id": 0}).sort("subscribed_at", -1).to_list(1000)
+    
+    for sub in subscriptions:
+        if isinstance(sub['subscribed_at'], str):
+            sub['subscribed_at'] = datetime.fromisoformat(sub['subscribed_at'])
+    
+    return subscriptions
+
+
+@api_router.delete("/admin/newsletter/subscriptions/{subscription_id}")
+async def delete_subscription(subscription_id: str, email: str = Depends(verify_token)):
+    """Delete/Unsubscribe a newsletter subscription - Admin only"""
+    result = await db.newsletter_subscriptions.update_one(
+        {"id": subscription_id},
+        {"$set": {"active": False}}
+    )
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Subscription not found")
+    return {"message": "Subscription removed successfully"}
 
 
 # Health check
